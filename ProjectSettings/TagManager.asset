@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags:
+  - clothestag
+  - fruittag
+  - cuptag
+  - laptoptag
+  - platetag
+  - zoomtag
+  - flashlighttag
+  - lastlaundrytag
+  - laundryboxtag
+  - keytag
+  - doortag
+  - lightswitchtag
+  - sewergratetag
+  - winetag
+  - lockertag
+  - champtag
+  - cantag
+  - lockpickdoortag
+  - drawertag
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - Post Processing
+  - LightBlock
+  - MuseTextureLayer
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  m_RenderingLayers:
+  - Default
