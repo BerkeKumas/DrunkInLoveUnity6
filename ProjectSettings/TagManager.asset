@@ -23,6 +23,18 @@ TagManager:
   - cantag
   - lockpickdoortag
   - drawertag
+  - handtag
+  - dragtag
+  - wallstag
+  - screwdrivertag
+  - venttag
+  - screwtag
+  - pintag
+  - stoppintag
+  - enemytag
+  - boltcuttertag
+  - bobbypintag
+  - chaindoortag
   layers:
   - Default
   - TransparentFX
@@ -33,7 +45,7 @@ TagManager:
   - Post Processing
   - LightBlock
   - MuseTextureLayer
-  - 
+  - LightLayer
   - 
   - 
   - 

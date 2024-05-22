@@ -8,6 +8,12 @@ public class DrawerController : MonoBehaviour
 
     private bool isDrawerOpen = false;
     private bool enableControl = true;
+    private Vector3 closePos;
+
+    private void Start()
+    {
+        closePos = transform.localPosition;
+    }
 
     public void ToggleDrawer()
     {
@@ -23,7 +29,7 @@ public class DrawerController : MonoBehaviour
         float elapsedTime = 0.0f;
         Vector3 startPos = transform.localPosition;
 
-        Vector3 newDrawrPos = isDrawerOpen ? new Vector3(startPos.x, startPos.y, 0.0f) : new Vector3(startPos.x, startPos.y, DRAWER_OPENING_DISTANCE);
+        Vector3 newDrawrPos = isDrawerOpen ? new Vector3(startPos.x, startPos.y, closePos.z) : new Vector3(startPos.x, startPos.y, DRAWER_OPENING_DISTANCE);
 
         while (elapsedTime < ANIMATION_TIME)
         {

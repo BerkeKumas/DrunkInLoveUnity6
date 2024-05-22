@@ -13,7 +13,7 @@ public class ObjectInteractions : MonoBehaviour
 {
     private readonly Vector3 rayOrigin = new Vector3(0.5f, 0.5f, 0f);
 
-    private const int RAY_LENGTH = 5;
+    private const float RAY_LENGTH = 5.0f;
     private const string LAST_LAUNDRY_TEXT = "I think something fell on the ground.";
     private const string HOLDING_KEY_TEXT = "A key I wonder where this opens.";
     private const string COFFEE_TEXT = "I need a coffee...";
@@ -37,6 +37,10 @@ public class ObjectInteractions : MonoBehaviour
     [SerializeField] private AudioSource backgroundMusic;
     [SerializeField] private AudioSource clockTickingSound;
     [SerializeField] private AudioClip darkAmbientMusic;
+    [SerializeField] private InventorySystem inventorySystem;
+    [SerializeField] private InventorySlot handSlot;
+    [SerializeField] private GameObject rotateText;
+    [SerializeField] private GameObject chainObject;
 
     private bool holdingObject = false;
     private bool dropLaundry = false;
@@ -47,6 +51,8 @@ public class ObjectInteractions : MonoBehaviour
     private bool enterLocker = false;
     private bool openDrawr = false;
     private bool useLockPick = false;
+    private bool openChainDoor = false;
+    private bool startInteraction = true;
     private GameObject holdObject;
     private GameObject rayObject;
     private GameObject laptopObject;
@@ -55,6 +61,7 @@ public class ObjectInteractions : MonoBehaviour
     private AudioSource soundAudioSource;
     private CaptionTextTyper captionTextTyper;
     private Outline outlinedObject;
+    private bool isRotating = false;
 
     private void Awake()
     {
@@ -63,8 +70,18 @@ public class ObjectInteractions : MonoBehaviour
         cupPos = cupPosObject.transform.position;
     }
 
-    void Update()
+    private void Update()
     {
+        if (!startInteraction) return;
+
+        if (Input.GetKeyDown(KeyCode.R) && !isRotating)
+        {
+            if (holdObject.tag == "zoomtag")
+            {
+                StartCoroutine(RotateOverTime(holdObject, 180, 1.0f));
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.F))
         {
             if (openLaptop)
@@ -96,7 +113,13 @@ public class ObjectInteractions : MonoBehaviour
             else if (useLockPick)
             {
                 interactionText.text = string.Empty;
-                rayObject.GetComponent<LockPick>().ToggleLockPick();
+                rayObject.GetComponent<LockpickControl>().enabled = true;
+            }
+            else if (openChainDoor)
+            {
+                chainObject.SetActive(false);
+                rayObject.tag = "doortag";
+
             }
             else if (holdingObject)
             {
@@ -124,6 +147,24 @@ public class ObjectInteractions : MonoBehaviour
         }
     }
 
+    private IEnumerator RotateOverTime(GameObject obj, float angle, float duration)
+    {
+        isRotating = true;
+        Quaternion startRotation = obj.transform.localRotation;
+        Quaternion endRotation = startRotation * Quaternion.Euler(0, angle, 0);
+        float elapsedTime = 0;
+
+        while (elapsedTime < duration)
+        {
+            obj.transform.localRotation = Quaternion.Slerp(startRotation, endRotation, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        obj.transform.localRotation = endRotation;
+        isRotating = false;
+    }
+
     private void ControlDoor()
     {
         DoorController controller = rayObject.GetComponent<DoorController>();
@@ -134,6 +175,7 @@ public class ObjectInteractions : MonoBehaviour
         else if (unlockDoor)
         {
             unlockDoor = false;
+            handSlot.ClearSlot();
             PlaySound(2);
             controller.isDoorLocked = false;
 
@@ -174,6 +216,9 @@ public class ObjectInteractions : MonoBehaviour
         }
         switch (rayObject.tag)
         {
+            case "bobbypintag":
+            case "boltcuttertag":
+            case "screwdrivertag":
             case "lastlaundrytag":
             case "sewergratetag":
             case "flashlighttag":
@@ -207,8 +252,26 @@ public class ObjectInteractions : MonoBehaviour
                 interactionText.text = "[F] to Hide";
                 break;
             case "lockpickdoortag":
-                useLockPick = true;
-                interactionText.text = "[F] to use Lock Pick";
+                if (handSlot.itemTag == "bobbypintag")
+                {
+                    useLockPick = true;
+                    interactionText.text = "[F] to use Lock Pick";
+                }
+                else
+                {
+                    captionTextTyper.StartType("I need something to open this...", false);
+                }
+                break;
+            case "chaindoortag":
+                if (handSlot.itemTag == "boltcuttertag")
+                {
+                    openChainDoor = true;
+                    interactionText.text = "[F] to Break Chain";
+                }
+                else
+                {
+                    captionTextTyper.StartType("I need something to open this...", false);
+                }
                 break;
             case "drawertag":
                 openDrawr = true;
@@ -266,6 +329,7 @@ public class ObjectInteractions : MonoBehaviour
         enterLocker = false;
         openDrawr = false;
         useLockPick = false;
+        openChainDoor = false;
         if (outlinedObject != null)
         {
             outlinedObject.enabled = false;
@@ -291,18 +355,41 @@ public class ObjectInteractions : MonoBehaviour
         {
             DestroyObject(zoomObject);
         }
-        else
+        else if (rayObject is not { tag: "lockpickdoortag" or "venttag" or "doortag"})
         {
+            if (holdObject is { tag: "flashlighttag" or "keytag" or "screwdrivertag" or "boltcuttertag" or "bobbypintag"})
+            {
+                if (rayObject is { tag: "flashlighttag" or "keytag" or "screwdrivertag" or "boltcuttertag" or "bobbypintag"})
+                {
+                    RaycastObjectActions();
+                    rayObject = null;
+                    return;
+                }
+                else
+                {
+                    holdObject = handSlot.itemGameObject;
+                    handSlot.ClearSlot();
+                }
+            }
             if (holdObject.tag == "flashlighttag")
             {
                 holdObject.GetComponent<Light>().enabled = false;
             }
+            else if (holdObject.tag == "winetag")
+            {
+                rotateText.SetActive(false);
+            }
             holdObject.GetComponent<Rigidbody>().isKinematic = false;
             holdObject.GetComponent<BoxCollider>().enabled = true;
             holdObject.transform.parent = null;
-            holdingObject = false;
-            holdObject = null;
+            ClearHold();
         }
+    }
+
+    public void ClearHold()
+    {
+        holdingObject = false;
+        holdObject = null;
     }
 
     private void RaycastObjectActions()
@@ -314,13 +401,36 @@ public class ObjectInteractions : MonoBehaviour
         else if (rayObject is { tag: "winetag"})
         {
             HoldObject();
+            rotateText.SetActive(true);
             rayObject.transform.localEulerAngles = new Vector3(0, 0, 0);
+        }
+        else if (rayObject is { tag: "screwdrivertag" })
+        {
+            HoldObject();
+            inventorySystem.AddItemToEmptySlot(rayObject.gameObject);
+            rayObject.transform.localEulerAngles = new Vector3(-15, 0, 0);
+            rayObject.transform.localPosition = new Vector3(0.7f, -0.75f, -0.75f);
         }
         else if (rayObject is { tag: "flashlighttag" })
         {
             HoldObject();
+            inventorySystem.AddItemToEmptySlot(rayObject.gameObject);
             rayObject.GetComponent<Light>().enabled = true;
             rayObject.transform.localEulerAngles = new Vector3(-15, 0, 0);
+            rayObject.transform.localPosition = new Vector3(0.7f, -0.75f, -0.75f);
+        }
+        else if (rayObject is { tag: "boltcuttertag" })
+        {
+            HoldObject();
+            inventorySystem.AddItemToEmptySlot(rayObject.gameObject);
+            rayObject.transform.localEulerAngles = new Vector3(0, -105, 15);
+            rayObject.transform.localPosition = new Vector3(0.7f, -0.75f, -0.75f);
+        }
+        else if (rayObject is { tag: "bobbypintag" })
+        {
+            HoldObject();
+            inventorySystem.AddItemToEmptySlot(rayObject.gameObject);
+            rayObject.transform.localEulerAngles = new Vector3(0, -105, 15);
             rayObject.transform.localPosition = new Vector3(0.7f, -0.75f, -0.75f);
         }
         else if (rayObject is { tag: "lastlaundrytag" })
@@ -333,7 +443,10 @@ public class ObjectInteractions : MonoBehaviour
         else if (rayObject is { tag: "keytag" })
         {
             HoldObject();
+            inventorySystem.AddItemToEmptySlot(rayObject.gameObject);
             captionTextTyper.StartType(HOLDING_KEY_TEXT, true);
+            rayObject.transform.localEulerAngles = new Vector3(-10, -100, -80);
+            rayObject.transform.localPosition = new Vector3(0.7f, -0.5f, -0.5f);
 
         }
         else if (rayObject is { tag: "zoomtag" })
@@ -347,12 +460,17 @@ public class ObjectInteractions : MonoBehaviour
 
     private void HoldObject()
     {
-        PlaySound(0);
-        holdObject = rayObject;
+        SetHoldObject(rayObject);
         holdObject.transform.GetComponent<Rigidbody>().isKinematic = true;
         holdObject.transform.parent = holdObjectParent.transform;
         holdObject.GetComponent<BoxCollider>().enabled = false;
         holdObject.transform.localPosition = Vector3.zero;
+    }
+
+    public void SetHoldObject(GameObject _holdObject)
+    {
+        PlaySound(0);
+        holdObject = _holdObject;
         holdingObject = true;
     }
 
@@ -372,5 +490,10 @@ public class ObjectInteractions : MonoBehaviour
     private void DropKey()
     {
         Instantiate(keyObject, holdObjectParent.transform.position, Quaternion.identity);
+    }
+
+    public void StartInteractions()
+    {
+        startInteraction = true;
     }
 }

@@ -1,113 +1,97 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class BreathControl : MonoBehaviour
 {
-    private const float INITIAL_TARGET_WIDTH = 45.0f;
-    private const float MIN_TARGET_WIDTH = 20.0f;
-    private const float DECREASE_AMOUNT = 5.0f;
-    private const float BAR_LIMIT = 170.0f;
-    private const float NEEDLE_MOVE_SPEED = 400.0f;
+    private const float INITIAL_HEART_BEAT_SPEED = 0.5f;
+    private const float SPEED_REDUCTION_FACTOR = 1.05f;
 
     [SerializeField] private GameObject BreathControlUI;
+    [SerializeField] private RectTransform heartUI;
     [SerializeField] private EnemyController enemyController;
-    [SerializeField] private RectTransform movingNeedle;
-    [SerializeField] private RectTransform targetArea;
+    [SerializeField] private Image heartImage;
 
-    private float targetWidth = INITIAL_TARGET_WIDTH;
-    private float targetLoc;
-    private float targetAreaLimit;
-    private bool isMovingRight = true;
-    private bool isHoldingBreath = false;
-    private bool enableBreathControl = false;
+    private float currentHeartbeatSpeed;
+    private Color originalColor;
 
-    private void Start()
+    private void OnEnable()
     {
-        targetAreaLimit = BAR_LIMIT - targetWidth / 2.0f;
-        SetNewTargetArea();
-        movingNeedle.localPosition = new Vector3(0, movingNeedle.localPosition.y, movingNeedle.localPosition.z);
+        originalColor = heartImage.color;
+        BreathControlUI.SetActive(true);
+        currentHeartbeatSpeed = INITIAL_HEART_BEAT_SPEED;
+        StartCoroutine(Heartbeat());
     }
 
-    private void Update()
+    private IEnumerator Heartbeat()
     {
-        if (!enableBreathControl) return;
+        while (true)
+        {
+            yield return ScaleUI(0.3f, 1f, currentHeartbeatSpeed / 2);
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            isHoldingBreath = true;
+            yield return ScaleUI(1f, 0.3f, currentHeartbeatSpeed / 2);
         }
-        if (Input.GetKeyUp(KeyCode.Space))
+    }
+
+    private IEnumerator ScaleUI(float from, float to, float duration)
+    {
+        float elapsed = 0;
+        while (elapsed < duration)
         {
-            isHoldingBreath = false;
-            if (CheckSuccess())
+            elapsed += Time.deltaTime;
+            float scale = Mathf.SmoothStep(from, to, elapsed / duration);
+            heartUI.localScale = new Vector3(scale, scale, scale);
+
+            if (Input.GetKeyDown(KeyCode.Space))
             {
-                ReduceTargetArea();
+                if (scale >= 0.85f && scale <= 1f)
+                {
+                    currentHeartbeatSpeed *= SPEED_REDUCTION_FACTOR;
+                    if (currentHeartbeatSpeed >= 1.0f)
+                    {
+                        StopAllCoroutines();
+                        enemyController.canSearchPlayer = false;
+                        BreathControlUI.SetActive(false);
+                        this.enabled = false;
+                    }
+                    StartCoroutine(ShowFeedback(Color.green));
+                }
+                else
+                {
+                    currentHeartbeatSpeed = Mathf.Max(currentHeartbeatSpeed / SPEED_REDUCTION_FACTOR, INITIAL_HEART_BEAT_SPEED);
+                    StartCoroutine(ShowFeedback(Color.red));
+                }
             }
-            SetNewTargetArea();
-        }
 
-        if (isHoldingBreath)
-        {
-            MoveNeedle();
+            yield return null;
         }
+        heartUI.localScale = new Vector3(to, to, to);
     }
 
-    private void SetNewTargetArea()
+    private IEnumerator ShowFeedback(Color feedbackColor)
     {
-        targetLoc = Random.Range(-targetAreaLimit, targetAreaLimit);
-        targetArea.sizeDelta = new Vector2(targetWidth, targetArea.sizeDelta.y);
-        targetArea.localPosition = new Vector3(targetLoc, targetArea.localPosition.y, targetArea.localPosition.z);
-    }
+        float duration = 0.2f;
+        float elapsed = 0f;
 
-    private void MoveNeedle()
-    {
-        float newX = movingNeedle.localPosition.x + Time.deltaTime * NEEDLE_MOVE_SPEED * (isMovingRight ? 1 : -1);
-        if (newX > BAR_LIMIT)
+        while (elapsed < duration)
         {
-            newX = BAR_LIMIT;
-            isMovingRight = false;
+            elapsed += Time.deltaTime;
+            heartImage.color = Color.Lerp(originalColor, feedbackColor, elapsed / duration);
+            yield return null;
         }
-        else if (newX < -BAR_LIMIT)
-        {
-            newX = -BAR_LIMIT;
-            isMovingRight = true;
-        }
-        movingNeedle.localPosition = new Vector3(newX, movingNeedle.localPosition.y, movingNeedle.localPosition.z);
-    }
 
-    private bool CheckSuccess()
-    {
-        if (movingNeedle.localPosition.x >= targetLoc - targetWidth / 2.0f && movingNeedle.localPosition.x <= targetLoc + targetWidth / 2.0f)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+        heartImage.color = feedbackColor;
 
-    private void ReduceTargetArea()
-    {
-        if (targetWidth > MIN_TARGET_WIDTH)
-        {
-            targetWidth -= DECREASE_AMOUNT;
-            if (targetWidth <= MIN_TARGET_WIDTH)
-            {
-                targetWidth = INITIAL_TARGET_WIDTH;
-                enemyController.canSearchPlayer = false;
-                enableBreathControl = false;
-                BreathControlUI.SetActive(false);
-            }
-        }
-    }
+        yield return new WaitForSeconds(0.3f);
 
-    public void ToggleBreathControl()
-    {
-        if (!enableBreathControl)
+        elapsed = 0f;
+        while (elapsed < duration)
         {
-            enableBreathControl = true;
-            BreathControlUI.SetActive(true);
+            elapsed += Time.deltaTime;
+            heartImage.color = Color.Lerp(feedbackColor, originalColor, elapsed / duration);
+            yield return null;
         }
+
+        heartImage.color = originalColor;
     }
 }

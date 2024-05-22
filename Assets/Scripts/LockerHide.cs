@@ -36,6 +36,7 @@ public class LockerHide : MonoBehaviour
         StartCoroutine(OpenCloseDoorRoutine());
         if (isPlayerInside)
         {
+            enemyController.checkPlayerDistance = false;
             enemyController.isPlayerHiding = true;
 
             boxCollider.enabled = false;
@@ -57,9 +58,9 @@ public class LockerHide : MonoBehaviour
 
     private IEnumerator OpenCloseDoorRoutine()
     {
-        yield return StartCoroutine(RotateDoor(-90));
-        yield return new WaitForSeconds(0.5f);
         yield return StartCoroutine(RotateDoor(90));
+        yield return new WaitForSeconds(0.5f);
+        yield return StartCoroutine(RotateDoor(-90));
     }
 
     private IEnumerator RotateDoor(float targetAngle)

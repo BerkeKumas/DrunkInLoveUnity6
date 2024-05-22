@@ -11,7 +11,7 @@ public class DoorController : MonoBehaviour
     [SerializeField] private AudioClip[] doorSounds;
 
     private bool isDoorOpen = false;
-    private bool canRotate = true;
+    private bool canRotateDoor = true;
     private Quaternion closedRotation;
     private Quaternion openRotation;
     private AudioSource audioSource;
@@ -25,18 +25,18 @@ public class DoorController : MonoBehaviour
 
     public void ToggleDoor()
     {
-        if (!canRotate) return;
+        if (!canRotateDoor) return;
 
-        StartCoroutine(RotateDoor(isDoorOpen));
         isDoorOpen = !isDoorOpen;
+        StartCoroutine(RotateDoor(isDoorOpen));
     }
 
-    private IEnumerator RotateDoor(bool isOpen)
+    private IEnumerator RotateDoor(bool openDoor)
     {
-        canRotate = false;
+        canRotateDoor = false;
         Quaternion startRotation = gameObject.transform.rotation;
-        Quaternion endRotation = isOpen ? closedRotation : openRotation;
-        audioSource.clip = isOpen ? doorSounds[1] : doorSounds[0];
+        Quaternion endRotation = openDoor ? openRotation : closedRotation;
+        audioSource.clip = openDoor ? doorSounds[0] : doorSounds[1];
         audioSource.Play();
 
         float time = 0.0f;
@@ -50,11 +50,17 @@ public class DoorController : MonoBehaviour
         }
 
         transform.rotation = endRotation;
-        canRotate = true;
+        canRotateDoor = true;
     }
 
     public bool IsDoorOpen()
     {
         return isDoorOpen;
+    }
+
+    public void StartDoorRotation(bool openDoor)
+    {
+        isDoorOpen = openDoor;
+        StartCoroutine(RotateDoor(isDoorOpen));
     }
 }

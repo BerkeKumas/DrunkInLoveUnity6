@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class HourTimer : MonoBehaviour
 {
     private const int GAME_OVER_SCENE_INDEX = 2;
-    private const float SECONDS_TO_WAIT = 2.0f;
+    private const float SECONDS_TO_WAIT = 3.0f;
     private const float TOTAL_MINUTES = 60.0f;
     private const string TIME_ON_COMPLETE = "08:00";
 

@@ -15,17 +15,21 @@ public class PlayerController : MonoBehaviour
     private const float STAND_CROUCH_ANIMATION_DURATION = 0.25f;
     private const float STAND_MOVE_SPEED_CHANGE_DURATION = 1.0f;
 
-    public bool CanMove = true;
+    public bool CanMove = false;
 
+    private float targetStandSpeed;
     private float moveSpeed = WALK_SPEED;
     private bool isCrouching = false;
     private bool shouldChangeStandSpeed = false;
     private PlayerInputActions playerInputActions;
     private AudioSource walkingSound;
     private Coroutine currentCoroutine;
+    private Coroutine currentStandCoroutine;
+    private Rigidbody rb;
 
     private void Awake()
     {
+        rb = GetComponent<Rigidbody>();
         walkingSound = GetComponent<AudioSource>();
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
@@ -46,13 +50,24 @@ public class PlayerController : MonoBehaviour
         }
 
         shouldChangeStandSpeed = Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.LeftControl);
+        targetStandSpeed = Input.GetKey(KeyCode.LeftShift) ? RUN_SPEED : WALK_SPEED;
         if (!isCrouching && shouldChangeStandSpeed)
         {
             shouldChangeStandSpeed = false;
-            StartCoroutine(ManageStandSpeed());
+            SwitchStandCoroutine(ManageStandSpeed());
         }
+    }
 
+    private void FixedUpdate()
+    {
         MovePlayer();
+    }
+
+    private void SwitchStandCoroutine(IEnumerator newCoroutine)
+    {
+        if (currentStandCoroutine != null)
+            StopCoroutine(currentStandCoroutine);
+        currentStandCoroutine = StartCoroutine(newCoroutine);
     }
 
     private void SwitchCoroutine(IEnumerator newCoroutine)
@@ -60,6 +75,23 @@ public class PlayerController : MonoBehaviour
         if (currentCoroutine != null)
             StopCoroutine(currentCoroutine);
         currentCoroutine = StartCoroutine(newCoroutine);
+    }
+
+    private IEnumerator ManageStandSpeed()
+    {
+        float startSpeed = moveSpeed;
+
+        float elapsedTime = 0.0f;
+
+        while (elapsedTime < STAND_MOVE_SPEED_CHANGE_DURATION)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / STAND_MOVE_SPEED_CHANGE_DURATION;
+            t = Mathf.SmoothStep(0, 1, t);
+            moveSpeed = Mathf.Lerp(startSpeed, targetStandSpeed, t);
+            yield return null;
+        }
+        moveSpeed = targetStandSpeed;
     }
 
     private IEnumerator Crouch()
@@ -108,29 +140,18 @@ public class PlayerController : MonoBehaviour
         transform.localScale = targetScale;
     }
 
-    private IEnumerator ManageStandSpeed()
-    {
-        float startSpeed = moveSpeed;
-        float targetSpeed = Input.GetKey(KeyCode.LeftShift) ? RUN_SPEED : WALK_SPEED;
-
-        float elapsedTime = 0.0f;
-
-        while (elapsedTime < STAND_MOVE_SPEED_CHANGE_DURATION)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / STAND_MOVE_SPEED_CHANGE_DURATION;
-            t = Mathf.SmoothStep(0, 1, t);
-            moveSpeed = Mathf.Lerp(startSpeed, targetSpeed, t);
-            yield return null;
-        }
-        moveSpeed = targetSpeed;
-    }
-
     private void MovePlayer()
     {
         Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>().normalized;
         Vector3 movement = moveSpeed * Time.deltaTime * (transform.forward * inputVector.y + transform.right * inputVector.x);
-        transform.position += movement;
+
+        Vector3 rayOrigin = transform.position + Vector3.up * 1.0f;
+        Ray ray = new Ray(rayOrigin, movement.normalized);
+
+        if (!Physics.Raycast(ray, 1.0f))
+        {
+            rb.MovePosition(rb.position + movement);
+        }
 
         bool isWalking = inputVector != Vector2.zero;
         UpdateWalkingSound(isWalking);
@@ -149,5 +170,10 @@ public class PlayerController : MonoBehaviour
         {
             walkingSound.Stop();
         }
+    }
+
+    public void EnableMovement()
+    {
+        CanMove = true;
     }
 }

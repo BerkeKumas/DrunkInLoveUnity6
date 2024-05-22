@@ -14,8 +14,6 @@ public class PlayerLook : MonoBehaviour
 
     private Vector2 rotationVelocity = Vector2.zero;
     private Vector2 frameVelocity = Vector2.zero;
-    private float removeX;
-    private float removeY;
 
     private void Awake()
     {

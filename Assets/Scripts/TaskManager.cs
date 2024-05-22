@@ -41,6 +41,7 @@ public class TaskManager : MonoBehaviour
         }
     }
 
+    private const float ACTIVATE_TAB_AFTER = 1.0f;
     private const float CLOSE_UI_END_DELAY = 2.0f;
     private const float WAIT_FOR_TEXT_COMPLETE = 2.5f;
     private const float UI_OFFSET = 15.0f;
@@ -70,6 +71,7 @@ public class TaskManager : MonoBehaviour
     [SerializeField] private PlayableDirector disableTaskList;
 
     private List<Task> tasks = new List<Task>();
+    private bool enableTabControl = true;
 
     void Start()
     {
@@ -92,22 +94,18 @@ public class TaskManager : MonoBehaviour
     {
         if (!isTaskManagerStarted) return;
 
-        if (Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Tab) && enableTabControl)
         {
             if (tabText.activeSelf)
             {
                 tabText.SetActive(false);
+                taskList.SetActive(true);
                 enableTaskList.Play();
-            }
-
-            if (taskList.activeSelf)
-            {
-                disableTaskList.Play();
             }
             else
             {
-                taskList.SetActive(true);
-                enableTaskList.Play();
+                tabText.SetActive(true);
+                disableTaskList.Play();
             }
         }
 
@@ -123,17 +121,18 @@ public class TaskManager : MonoBehaviour
 
     private void CompleteTask(int taskIndex)
     {
-            taskList.SetActive(true);
-            enableTaskList.Play();
-            tasks[taskIndex].Complete();
-            StartCoroutine(TextCompleteEffect(tasks[taskIndex].TaskText, tasks[taskIndex].Description));
+        enableTabControl = false;
+        taskList.SetActive(true);
+        enableTaskList.Play();
+        tasks[taskIndex].Complete();
+        StartCoroutine(TextCompleteEffect(tasks[taskIndex].TaskText, tasks[taskIndex].Description));
 
-            if (taskIndex < tasks.Count - 1)
-            {
-                StartCoroutine(ShiftTextsUp(taskIndex + 1));
-            }
+        if (taskIndex < tasks.Count - 1)
+        {
+            StartCoroutine(ShiftTextsUp(taskIndex + 1));
+        }
 
-            StartCoroutine(ShiftPanelUp());
+        StartCoroutine(ShiftPanelUp());
     }
 
 
@@ -206,6 +205,14 @@ public class TaskManager : MonoBehaviour
 
         yield return new WaitForSeconds(CLOSE_UI_END_DELAY);
         disableTaskList.Play();
+        yield return new WaitForSeconds(ACTIVATE_TAB_AFTER);
+
+
+        if (!tabText.activeSelf)
+        {
+            tabText.SetActive(true);
+        }
+        enableTabControl = true;
     }
 
     private void CheckAllTasksCompleted()

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using Unity.Cinemachine;
 
 public class ReadPin : MonoBehaviour
 {
@@ -24,6 +25,9 @@ public class ReadPin : MonoBehaviour
     [SerializeField] private GameObject pinScriptHandler;
     [SerializeField] private GameObject backgroundAudioSource;
     [SerializeField] private TextMeshProUGUI pinDateText;
+    [SerializeField] private CinemachineCamera pinCam;
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private PinManager pinManager;
 
     private char[] pinCode = new char[PIN_LENGTH];
     private char[] enteredPin = new char[PIN_LENGTH];
@@ -167,6 +171,9 @@ public class ReadPin : MonoBehaviour
             taskManager.musicTaskDone = true;
             backgroundMusic.Stop();
             audioSource.Play();
+            pinManager.IsPinEntryActive = false;
+            playerController.CanMove = true;
+            pinCam.Priority = 0;
             PinMode = false;
         }
     }

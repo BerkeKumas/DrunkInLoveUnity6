@@ -5,16 +5,19 @@ using System.Collections;
 public class MotionCameraEffects : MonoBehaviour
 {
     private const float FOV_CHANGE_DURATION = 1.0f;
-    private float BOBBING_SPEED = 10.0f;
     private const float BOBBING_AMOUNT = 0.15f;
-    private const float RUNNING_FOV_INCREASE = 15.0f;
+    private const float RUNNING_FOV_INCREASE = 10.0f;
 
     public bool isEffectActive = false;
 
+    private float targetFOV;
+    private float currentFOV;
     private float defaultFOV;
     private float defaultPosY;
     private float waveTime = 0;
+    private float bobbingSpeed = 10.0f;
     private CinemachineCamera _cam;
+    private Coroutine currentCoroutine;
 
     private void Start()
     {
@@ -39,8 +42,27 @@ public class MotionCameraEffects : MonoBehaviour
         }
         else
         {
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                bobbingSpeed = 15.0f;
+            }
+            else if (Input.GetKey(KeyCode.LeftControl))
+            {
+                bobbingSpeed = 5.0f;
+            }
+            else
+            {
+                bobbingSpeed = 10.0f;
+            }
+            targetFOV = Input.GetKey(KeyCode.LeftShift) ? defaultFOV + RUNNING_FOV_INCREASE : defaultFOV;
+            if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.LeftShift))
+            {
+                currentFOV = _cam.Lens.FieldOfView;
+                SwitchCoroutine(UpdateFOV());
+            }
+
             waveslice = Mathf.Sin(waveTime);
-            waveTime += BOBBING_SPEED * Time.deltaTime;
+            waveTime += bobbingSpeed * Time.deltaTime;
             if (waveTime > Mathf.PI * 2)
             {
                 waveTime -= (Mathf.PI * 2);
@@ -61,17 +83,16 @@ public class MotionCameraEffects : MonoBehaviour
         }
 
         transform.localPosition = cameraTransform;
-
-        BOBBING_SPEED = Input.GetKey(KeyCode.LeftShift) ? 15 : 10;
-        float targetFOV = Input.GetKey(KeyCode.LeftShift) ? defaultFOV + RUNNING_FOV_INCREASE : defaultFOV;
-        if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.LeftShift))
-        {
-            float currentFOV = _cam.Lens.FieldOfView;
-            StartCoroutine(UpdateFOV(currentFOV, targetFOV));
-        }
     }
 
-    private IEnumerator UpdateFOV(float _currentFOV, float _targetFOV)
+    private void SwitchCoroutine(IEnumerator newCoroutine)
+    {
+        if (currentCoroutine != null)
+            StopCoroutine(currentCoroutine);
+        currentCoroutine = StartCoroutine(newCoroutine);
+    }
+
+    private IEnumerator UpdateFOV()
     {
         float elapsedTime = 0.0f;
 
@@ -80,10 +101,10 @@ public class MotionCameraEffects : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / FOV_CHANGE_DURATION;
             t = Mathf.SmoothStep(0, 1, t);
-            _cam.Lens.FieldOfView = Mathf.Lerp(_currentFOV, _targetFOV, t);
+            _cam.Lens.FieldOfView = Mathf.Lerp(currentFOV, targetFOV, t);
             yield return null;
         }
-        _cam.Lens.FieldOfView = _targetFOV;
+        _cam.Lens.FieldOfView = targetFOV;
     }
 
     public void StartMotionEffect()

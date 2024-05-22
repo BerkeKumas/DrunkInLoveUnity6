@@ -10,7 +10,6 @@ public class PinManager : MonoBehaviour
     public bool IsPinEntryActive = false;
     public bool ShouldEnterPin = false;
 
-    [SerializeField] private GameObject pinCamera;
     [SerializeField] private GameObject playerObject;
     [SerializeField] private GameObject pinEntryPanel;
     [SerializeField] private AudioClip[] keypadSounds;

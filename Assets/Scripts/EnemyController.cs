@@ -3,41 +3,44 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
-    private const float WANDER_RADIUS = 15.0f;
-    private const float WANDER_COOLDOWN = 2.0f;
-
     public bool startEnemy = false;
     public bool isPlayerHiding = false;
     public bool waitOnPlayer = false;
     public bool canSearchPlayer = true;
+    public bool checkPlayerDistance = false;
 
     [SerializeField] private GameObject player;
     [SerializeField] private BreathControl breathControl;
+    [SerializeField] private Transform[] waypoints;
 
-    private float wanderTimer = 0.0f;
-    private bool checkPlayerDistance = false;
+    private int currentWaypointIndex = 0;
     private NavMeshAgent agent;
+    private Animator animator;
+    private bool returningToWaypoints = false;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
         if (!startEnemy) return;
 
-        if (checkPlayerDistance && Vector3.Distance(player.transform.position, transform.position) <= 2.5f)
+        if (checkPlayerDistance && Vector3.Distance(player.transform.position, transform.position) <= 3f)
         {
             checkPlayerDistance = false;
-
-            breathControl.ToggleBreathControl();
+            breathControl.enabled = true;
         }
-        if (canSearchPlayer && Vector3.Distance(player.transform.position, transform.position) <= 20.0f)
+
+        if (canSearchPlayer && Vector3.Distance(player.transform.position, transform.position) <= 30.0f)
         {
             if (!isPlayerHiding)
             {
+                agent.speed = 7;
                 agent.SetDestination(player.transform.position);
+                returningToWaypoints = false;
             }
             else if (waitOnPlayer)
             {
@@ -45,33 +48,57 @@ public class EnemyController : MonoBehaviour
 
                 Transform lockerPos = player.GetComponent<ObjectInteractions>().lockerObject.transform;
                 Vector3 targetPosition = lockerPos.position + lockerPos.forward * 2.0f;
-
                 agent.SetDestination(targetPosition);
 
                 checkPlayerDistance = true;
+                returningToWaypoints = false;
             }
         }
         else
         {
-            wanderTimer += Time.deltaTime;
-            if (wanderTimer >= WANDER_COOLDOWN)
+            agent.speed = 4;
+            if (!returningToWaypoints)
             {
-                Vector3 randomDestination = GetRandomPoint(transform.position, WANDER_RADIUS);
-                agent.SetDestination(randomDestination);
-                wanderTimer = 0.0f;
+                FindNearestWaypoint();
+                returningToWaypoints = true;
+            }
+            else
+            {
+                MoveToNextWaypoint();
             }
         }
+
+        animator.SetFloat("Speed", agent.velocity.magnitude);
+        animator.SetBool("IsMoving", agent.velocity.magnitude > 0);
     }
 
-    private Vector3 GetRandomPoint(Vector3 center, float radius)
+    private void FindNearestWaypoint()
     {
-        Vector3 randomDirection = Random.insideUnitSphere * radius;
-        randomDirection += center;
+        float shortestDistance = Mathf.Infinity;
+        int nearestWaypointIndex = 0;
 
-        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, radius, NavMesh.AllAreas))
+        for (int i = 0; i < waypoints.Length; i++)
         {
-            return hit.position;
+            float distanceToWaypoint = Vector3.Distance(transform.position, waypoints[i].position);
+            if (distanceToWaypoint < shortestDistance)
+            {
+                shortestDistance = distanceToWaypoint;
+                nearestWaypointIndex = i;
+            }
         }
-        return center;
+
+        currentWaypointIndex = nearestWaypointIndex;
+        agent.SetDestination(waypoints[currentWaypointIndex].position);
+    }
+
+    private void MoveToNextWaypoint()
+    {
+        if (waypoints.Length == 0) return;
+
+        if (!agent.pathPending && agent.remainingDistance < 0.5f)
+        {
+            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+            agent.SetDestination(waypoints[currentWaypointIndex].position);
+        }
     }
 }
