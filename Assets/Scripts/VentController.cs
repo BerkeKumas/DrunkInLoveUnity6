@@ -7,11 +7,15 @@ public class VentController : MonoBehaviour
     private readonly Vector3 rayOrigin = new Vector3(0.5f, 0.5f, 0f);
     private const float RAY_DISTANCE = 5.0f;
     private const string ITEM_NEED_TEXT = "I need something to open this...";
-
+    private const string CANT_REACH_TEXT = "I can't reach there.";
+    
+    [SerializeField] private LayerMask interactableLayers;
     [SerializeField] private CinemachineCamera ventCam;
     [SerializeField] private TextMeshProUGUI ventText;
     [SerializeField] private InventorySlot handSlot;
     [SerializeField] private CaptionTextTyper captionTextTyper;
+    [SerializeField] private GameObject player;
+    [SerializeField] private ObjectInteractions objectInteractions;
 
     private bool activateVent = false;
 
@@ -52,34 +56,42 @@ public class VentController : MonoBehaviour
         ventCam.Priority = 0;
         Cursor.lockState = CursorLockMode.Locked;
         activateVent = false;
-        this.enabled = false;
+        objectInteractions.enabled = true;
     }
 
     private void ScreenVentRay()
     {
         Ray ray = Camera.main.ViewportPointToRay(rayOrigin);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, RAY_DISTANCE))
+        if (Physics.Raycast(ray, out hit, RAY_DISTANCE, interactableLayers))
         {
             GameObject hitObj = hit.collider.gameObject;
             if (hitObj.tag == "venttag")
             {
-                ventText.text = "[F] to Zoom";
-                if (handSlot.itemTag == "screwdrivertag")
+                if (player.transform.position.y > -5.0f)
                 {
-                    if (Input.GetKeyDown(KeyCode.F))
+                    if (handSlot.itemTag == "screwdrivertag")
                     {
-                        handSlot.itemGameObject.SetActive(false);
-                        ventText.text = string.Empty;
-                        GetComponent<BoxCollider>().enabled = false;
-                        ventCam.Priority = 2;
-                        Cursor.lockState = CursorLockMode.None;
-                        activateVent = true;
+                        ventText.text = "[F] to Look";
+                        if (Input.GetKeyDown(KeyCode.F))
+                        {
+                            objectInteractions.enabled = false;
+                            handSlot.itemGameObject.SetActive(false);
+                            ventText.text = string.Empty;
+                            GetComponent<BoxCollider>().enabled = false;
+                            ventCam.Priority = 2;
+                            Cursor.lockState = CursorLockMode.None;
+                            activateVent = true;
+                        }
+                    }
+                    else
+                    {
+                        captionTextTyper.StartType(ITEM_NEED_TEXT, false);
                     }
                 }
                 else
                 {
-                    captionTextTyper.StartType(ITEM_NEED_TEXT, false);
+                    captionTextTyper.StartType(CANT_REACH_TEXT, false);
                 }
             }
             else

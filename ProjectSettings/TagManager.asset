@@ -35,6 +35,13 @@ TagManager:
   - boltcuttertag
   - bobbypintag
   - chaindoortag
+  - wardrobetag
+  - stairstag
+  - stairsdragtag
+  - codepaneltag
+  - bathroomdoortag
+  - missingfingertag
+  - venthinttag
   layers:
   - Default
   - TransparentFX
@@ -46,12 +53,12 @@ TagManager:
   - LightBlock
   - MuseTextureLayer
   - LightLayer
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - ExitDoor
+  - Player
+  - Enemy
+  - Note
+  - LightBlock2
+  - Trigger
   - 
   - 
   - 

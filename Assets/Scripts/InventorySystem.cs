@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -5,6 +6,7 @@ using UnityEngine.UI;
 
 public class InventorySystem : MonoBehaviour
 {
+    private readonly KeyCode[] InventoryKeys = { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7 };
     public List<InventoryObjects> inventoryObjects = new List<InventoryObjects>();
     
     [SerializeField] private GameObject InventoryUI;
@@ -12,7 +14,6 @@ public class InventorySystem : MonoBehaviour
     [SerializeField] private Sprite[] iconList;
 
     private bool isInventoryOpen = false;
-
 
     public class InventoryObjects
     {
@@ -50,14 +51,13 @@ public class InventorySystem : MonoBehaviour
         {
             isInventoryOpen = !isInventoryOpen;
             InventoryUI.SetActive(isInventoryOpen);
-
-            if (isInventoryOpen)
+        }
+        foreach (KeyCode keys in InventoryKeys)
+        {
+            if (Input.GetKeyDown(keys))
             {
-                Cursor.lockState = CursorLockMode.None;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Locked;
+                int keyNum = (Array.IndexOf(InventoryKeys, keys));
+                InventorySlots[keyNum].SendToHand();
             }
         }
     }
@@ -78,5 +78,10 @@ public class InventorySystem : MonoBehaviour
                 break;
             }
         }
+    }
+
+    public void ClearSlot(int slot)
+    {
+        InventorySlots[slot].ClearSlot();
     }
 }

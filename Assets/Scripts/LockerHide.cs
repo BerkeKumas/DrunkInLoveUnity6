@@ -12,18 +12,23 @@ public class LockerHide : MonoBehaviour
     [SerializeField] private PlayerController playerController;
     [SerializeField] private MotionCameraEffects motionCameraEffects;
     [SerializeField] private EnemyController enemyController;
+    [SerializeField] private ObjectInteractions objectInteractions;
+    [SerializeField] private InventorySlot handSlot;
+    [SerializeField] private AudioClip[] audioClips;
 
-    private bool isPlayerInside = false;
+    private bool isPlayerGoingInside = false;
     private BoxCollider boxCollider;
+    private AudioSource audioSource;
 
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         boxCollider = GetComponent<BoxCollider>();
     }
 
     private void Update()
     {
-        if (isPlayerInside && Input.GetKeyDown(KeyCode.F))
+        if (isPlayerGoingInside && Input.GetKeyDown(KeyCode.F))
         {
             ControlPlayerHide();
         }
@@ -31,15 +36,24 @@ public class LockerHide : MonoBehaviour
 
     public void ControlPlayerHide()
     {
-        isPlayerInside = !isPlayerInside;
+        isPlayerGoingInside = !isPlayerGoingInside;
+
+        if (isPlayerGoingInside)
+        {
+            objectInteractions.enabled = false;
+            if (handSlot.itemGameObject != null)
+            {
+                handSlot.itemGameObject.SetActive(false);
+            }
+        }
 
         StartCoroutine(OpenCloseDoorRoutine());
-        if (isPlayerInside)
+        if (isPlayerGoingInside)
         {
-            enemyController.checkPlayerDistance = false;
             enemyController.isPlayerHiding = true;
 
             boxCollider.enabled = false;
+            playerController.UpdateWalkingSound(false);
             playerController.enabled = false;
             playerLook.startingRotation = playerLook.startingRotation + 180.0f;
             motionCameraEffects.isEffectActive = false;
@@ -47,19 +61,31 @@ public class LockerHide : MonoBehaviour
         }
         else
         {
-            enemyController.canSearchPlayer = true;
             enemyController.isPlayerHiding = false;
 
             playerController.enabled = true;
             motionCameraEffects.isEffectActive = true;
             StartCoroutine(TogglePlayerInside(transform.position + transform.forward, transform.rotation));
         }
+
+        if (!isPlayerGoingInside)
+        {
+            if (handSlot.itemGameObject != null)
+            {
+                handSlot.itemGameObject.SetActive(true);
+            }
+            objectInteractions.enabled = true;
+        }
     }
 
     private IEnumerator OpenCloseDoorRoutine()
     {
+        audioSource.clip = audioClips[0];
+        audioSource.Play();
         yield return StartCoroutine(RotateDoor(90));
         yield return new WaitForSeconds(0.5f);
+        audioSource.clip = audioClips[1];
+        audioSource.Play();
         yield return StartCoroutine(RotateDoor(-90));
     }
 
@@ -100,11 +126,13 @@ public class LockerHide : MonoBehaviour
 
         playerTransform.position = targetPosition;
         playerTransform.rotation = targetRotation;
-        enemyController.waitOnPlayer = true;
+        enemyController.waitOnLocker = true;
 
-        if (!isPlayerInside)
+        if (!isPlayerGoingInside)
         {
             boxCollider.enabled = true;
+            yield return new WaitForSeconds(0.5f);
+            enemyController.canSearchPlayer = true;
         }
     }
 }

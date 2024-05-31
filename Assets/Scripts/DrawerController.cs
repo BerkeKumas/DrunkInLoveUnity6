@@ -9,6 +9,12 @@ public class DrawerController : MonoBehaviour
     private bool isDrawerOpen = false;
     private bool enableControl = true;
     private Vector3 closePos;
+    private AudioSource audioSource;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
 
     private void Start()
     {
@@ -26,6 +32,7 @@ public class DrawerController : MonoBehaviour
 
     private IEnumerator ControlDrawer()
     {
+        audioSource.Play();
         float elapsedTime = 0.0f;
         Vector3 startPos = transform.localPosition;
 

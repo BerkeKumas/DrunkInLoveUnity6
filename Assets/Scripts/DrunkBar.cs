@@ -8,7 +8,7 @@ public class DrunkBar : MonoBehaviour
 {
     private const int MAX_FILL_DURATION = 100;
     private const int GAME_OVER_SCENE_INDEX = 2;
-    private const float FILL_SPEED = 1.25f;
+    private const float FILL_SPEED = 1.5f;
     private const float DRUNK_WOBBLE_FACTOR = 0.06f;
     private const float DECREASE_DURATION = 1.0f;
     private const string HALF_FILL_TEXT = "I need a coffee...";

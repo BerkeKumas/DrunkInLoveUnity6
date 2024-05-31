@@ -7,7 +7,7 @@ public class PlayerLook : MonoBehaviour
 
     public bool isMouseEnabled = false;
     public float mouseSensitivity = 2.5f;
-    public float startingRotation = 180.0f;
+    public float startingRotation = 0.0f;
 
     [SerializeField] private Transform player;
     [SerializeField] private float rotationSmoothing = 25.0f;

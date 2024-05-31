@@ -199,9 +199,9 @@ AudioSource:
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
+  DopplerLevel: 0
+  MinDistance: 2
+  MaxDistance: 20
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -236,7 +236,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -588,8 +588,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.2352405, y: 5.2126403, z: 4.023065}
-  m_Center: {x: -0.9912479, y: 2.6146686, z: 0.01838513}
+  m_Size: {x: 4.949955, y: 5.2126403, z: 8.018851}
+  m_Center: {x: -0.9912478, y: 2.6146686, z: 0.018385135}
 --- !u!114 &7409269115632031448
 MonoBehaviour:
   m_ObjectHideFlags: 0

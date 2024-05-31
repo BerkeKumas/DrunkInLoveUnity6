@@ -87,6 +87,11 @@ public class PauseManager : MonoBehaviour
         }
     }
 
+    public void BrightnessBar(float barInput)
+    {
+        RenderSettings.ambientIntensity = barInput;
+    }
+
     public void BackToMenu()
     {
         SceneManager.LoadScene(MENU_INDEX);

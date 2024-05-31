@@ -5,10 +5,11 @@ using Unity.VisualScripting;
 
 public class CaptionTextTyper : MonoBehaviour
 {
+    private const float UNSTABLE_COMPLETATION_FACTOR = 50.0f;
     private const float COMPLETE_TEXT_PAUSE_FACTOR = 10.0f;
+    private const float LETTER_DELAY = 0.06f;
 
     private TextMeshProUGUI textDisplay;
-    private float delay = 0.075f;
     private string currentText = "";
     private string fullText;
     private string currentFullText;
@@ -51,9 +52,9 @@ public class CaptionTextTyper : MonoBehaviour
         {
             currentText = currentFullText.Substring(0, i);
             textDisplay.text = currentText;
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(LETTER_DELAY);
         }
-        yield return new WaitForSeconds(delay * COMPLETE_TEXT_PAUSE_FACTOR);
+        yield return new WaitForSeconds(LETTER_DELAY * COMPLETE_TEXT_PAUSE_FACTOR);
 
         if (currentFullText != fullText)
         {
@@ -67,7 +68,7 @@ public class CaptionTextTyper : MonoBehaviour
         {
             if (!currentIsStable)
             {
-                yield return new WaitForSeconds(delay * COMPLETE_TEXT_PAUSE_FACTOR);
+                yield return new WaitForSeconds(LETTER_DELAY * UNSTABLE_COMPLETATION_FACTOR);
                 currentText = "";
                 textDisplay.text = currentText;
             }

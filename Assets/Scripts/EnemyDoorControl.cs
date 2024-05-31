@@ -16,6 +16,7 @@ public class EnemyDoorControl : MonoBehaviour
             if (!doorController.IsDoorOpen())
             {
                 doorController.StartDoorRotation(true);
+                transform.GetChild(0).GetComponent<BoxCollider>().enabled = false;
             }
         }
     }
@@ -26,6 +27,7 @@ public class EnemyDoorControl : MonoBehaviour
         {
             if (doorController.IsDoorOpen())
             {
+                transform.GetChild(0).GetComponent<BoxCollider>().enabled = true;
                 doorController.StartDoorRotation(false);
             }
         }
