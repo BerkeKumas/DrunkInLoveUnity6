@@ -13,9 +13,11 @@ public class ScrewRotationHandler : MonoBehaviour
     private bool startRotation = false;
     private float previousAngle = 0f;
     private Rigidbody rb;
+    private AudioSource audioSource;
 
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody>();
     }
 
@@ -44,15 +46,34 @@ public class ScrewRotationHandler : MonoBehaviour
 
             if (angleDelta > 0)
             {
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.Play();
+                }
                 transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, Mathf.Clamp(transform.localPosition.z - movementAmount, minZ, maxZ));
             }
             else if (angleDelta < 0)
             {
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.Play();
+                }
                 transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, Mathf.Clamp(transform.localPosition.z - movementAmount, minZ, maxZ));
+            }
+            else
+            {
+                if (audioSource.isPlaying)
+                {
+                    audioSource.Stop();
+                }
             }
 
             if (transform.localPosition.z >= 0.68f)
             {
+                if (audioSource.isPlaying)
+                {
+                    audioSource.Stop();
+                }
                 startRotation = false;
                 transform.GetChild(0).gameObject.SetActive(false);
                 rb.isKinematic = false;
@@ -65,6 +86,10 @@ public class ScrewRotationHandler : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
             isMouseClicked = false;
         }
     }

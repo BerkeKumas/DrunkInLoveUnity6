@@ -16,6 +16,7 @@ public class VentController : MonoBehaviour
     [SerializeField] private CaptionTextTyper captionTextTyper;
     [SerializeField] private GameObject player;
     [SerializeField] private ObjectInteractions objectInteractions;
+    [SerializeField] private GameObject ventLight;
 
     private bool activateVent = false;
 
@@ -52,6 +53,7 @@ public class VentController : MonoBehaviour
         {
             handSlot.itemGameObject.SetActive(true);
         }
+        ventLight.SetActive(false);
         GetComponent<BoxCollider>().enabled = true;
         ventCam.Priority = 0;
         Cursor.lockState = CursorLockMode.Locked;
@@ -75,6 +77,7 @@ public class VentController : MonoBehaviour
                         ventText.text = "[F] to Look";
                         if (Input.GetKeyDown(KeyCode.F))
                         {
+                            ventLight.SetActive(true);
                             objectInteractions.enabled = false;
                             handSlot.itemGameObject.SetActive(false);
                             ventText.text = string.Empty;

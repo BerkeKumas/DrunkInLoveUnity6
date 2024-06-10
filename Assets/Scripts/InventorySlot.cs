@@ -8,6 +8,7 @@ public class InventorySlot : MonoBehaviour
     [SerializeField] private InventorySystem inventorySystem;
     [SerializeField] private ObjectInteractions objectInteractions;
     [SerializeField] private InventorySlot handSlot;
+    [SerializeField] private RectTransform highlightSlot;
 
     public Image itemIcon;
     public string itemTag = string.Empty;
@@ -39,8 +40,8 @@ public class InventorySlot : MonoBehaviour
             {
                 itemGameObject.SetActive(false);
             }
-            if (this.name == "0" && handSlot.itemGameObject == null)
-            {
+            if (handSlot.itemGameObject == null)
+            {   
                 SendToHand();
             }
         }
@@ -48,6 +49,7 @@ public class InventorySlot : MonoBehaviour
         {
             if (itemGameObject != null)
             {
+                itemIcon.color = new Color(itemIcon.color.r, itemIcon.color.g, itemIcon.color.b, 0);
                 itemGameObject.SetActive(true);
                 objectInteractions.SetHoldObject(itemGameObject);
             }
@@ -73,15 +75,18 @@ public class InventorySlot : MonoBehaviour
 
     public void SendToHand()
     {
+        if (!highlightSlot.gameObject.activeSelf)
+        {
+            highlightSlot.gameObject.SetActive(true);
+        }
+        highlightSlot.position = itemIcon.rectTransform.position;
+
         if (handSlot.itemGameObject != null)
         {
             handSlot.itemGameObject.SetActive(false);
         }
         handSlot.AddItem(itemTag, itemIcon.sprite, itemGameObject);
         handSlot.slotIndex = Convert.ToInt32(this.name);
-        if (handSlot.itemIcon.sprite == null)
-        {
-            handSlot.itemIcon.color = new Color(itemIcon.color.r, itemIcon.color.g, itemIcon.color.b, 0);
-        }
+        handSlot.itemIcon.color = new Color(itemIcon.color.r, itemIcon.color.g, itemIcon.color.b, 0);
     }
 }

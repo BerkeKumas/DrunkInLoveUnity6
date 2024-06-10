@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
@@ -15,13 +18,18 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private GameObject cameraObject;
     [SerializeField] private GameObject[] musicObjects;
     [SerializeField] private GameObject[] soundObjects;
+    [SerializeField] private EnemyController enemyController;
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private Volume volume;
 
     private bool isGamePaused = false;
     private bool isLevelUIEnabled = true;
     private PlayerLook playerLook;
+    private Rigidbody playerRb;
 
     private void Awake()
     {
+        playerRb = playerController.gameObject.GetComponent<Rigidbody>();
         playerLook = cameraObject.GetComponent<PlayerLook>();
     }
 
@@ -42,7 +50,14 @@ public class PauseManager : MonoBehaviour
         if (isGamePaused)
         {
             Cursor.lockState = CursorLockMode.None;
-            playerLook.isMouseEnabled = false;
+            playerRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+            playerLook.enabled = false;
+            playerController.enabled = false;
+            enemyController.isPaused = true;
+            if (enemyController.agent != null)
+            {
+                enemyController.agent.isStopped = true;
+            }
 
             if (!levelUI.activeSelf)
             {
@@ -56,8 +71,16 @@ public class PauseManager : MonoBehaviour
         }
         else
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            playerLook.isMouseEnabled = true;
+            Cursor.lockState = CursorLockMode.Locked; 
+            playerRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            playerLook.enabled = true;
+            playerController.enabled = true;
+            enemyController.isPaused = false;
+            if (enemyController.agent != null)
+            {
+                enemyController.agent.isStopped = false;
+            }
+
             pauseMenu.SetActive(false);
             if (isLevelUIEnabled)
             {
@@ -75,7 +98,10 @@ public class PauseManager : MonoBehaviour
     {
         foreach (GameObject musicObject in musicObjects)
         {
-            musicObject.GetComponent<AudioSource>().volume = barInput;
+            if (musicObject != null)
+            {
+                musicObject.GetComponent<AudioSource>().volume = barInput;
+            }
         }
     }
 
@@ -83,13 +109,23 @@ public class PauseManager : MonoBehaviour
     {
         foreach (GameObject soundObject in soundObjects)
         {
-            soundObject.GetComponent<AudioSource>().volume = barInput;
+            if (soundObject != null)
+            {
+                AudioSource audioSource = soundObject.GetComponent<AudioSource>();
+                if (audioSource != null)
+                {
+                    audioSource.volume = barInput;
+                }
+            }
         }
     }
 
     public void BrightnessBar(float barInput)
     {
-        RenderSettings.ambientIntensity = barInput;
+        if (volume.profile.TryGet<ColorAdjustments>(out var colorAdjustments))
+        {
+            colorAdjustments.postExposure.value = barInput;
+        }
     }
 
     public void BackToMenu()

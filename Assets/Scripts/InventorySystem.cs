@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class InventorySystem : MonoBehaviour
 {
-    private readonly KeyCode[] InventoryKeys = { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7 };
+    private readonly KeyCode[] InventoryKeys = { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6};
     public List<InventoryObjects> inventoryObjects = new List<InventoryObjects>();
     
     [SerializeField] private GameObject InventoryUI;

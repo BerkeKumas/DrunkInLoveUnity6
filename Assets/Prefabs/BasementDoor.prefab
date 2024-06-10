@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 623745476747331691, guid: 496757de073ecd141a40eb3e3b8f0842, type: 3}
+  - {fileID: 2100000, guid: 63760a506daf85742bcea77a67a10203, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -138,8 +138,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isDoorLocked: 0
   doorSounds:
-  - {fileID: 8300000, guid: 53c05f653fde4914abc2f750585422fd, type: 3}
-  - {fileID: 8300000, guid: a4bb7dc5f2fe87948989abd5575c25ff, type: 3}
+  - {fileID: 8300000, guid: 8553dc0d80ce53d4abd29ed7e34d9c3b, type: 3}
+  - {fileID: 8300000, guid: 42bb1879d09e7de4f9c78b28f65d94a5, type: 3}
 --- !u!114 &5950124180390524266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,14 +193,14 @@ AudioSource:
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 1
-  m_Pitch: 1
+  m_Pitch: 1.6
   Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 0
-  MinDistance: 2
+  MinDistance: 5
   MaxDistance: 20
   Pan2D: 0
   rolloffMode: 0
@@ -512,7 +512,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 3315042358087236154, guid: 496757de073ecd141a40eb3e3b8f0842, type: 3}
+  - {fileID: 2100000, guid: 63760a506daf85742bcea77a67a10203, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

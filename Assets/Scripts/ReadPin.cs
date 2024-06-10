@@ -77,7 +77,7 @@ public class ReadPin : MonoBehaviour
         System.Random random = new System.Random();
         int month = random.Next(1, MAX_MONTH + 1);
         int day = random.Next(1, MAX_DAY + 1);
-        int year = random.Next(MIN_YEAR, MAX_YEAR + 1);
+        int year = 2023;
 
         pinCode = $"{month:D2}{day:D2}{year}".ToCharArray();
     }

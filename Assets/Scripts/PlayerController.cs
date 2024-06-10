@@ -14,11 +14,13 @@ public class PlayerController : MonoBehaviour
     private const float CROUCH_SCALE_Y = 0.5f;
     private const float STAND_CROUCH_ANIMATION_DURATION = 0.25f;
     private const float STAND_MOVE_SPEED_CHANGE_DURATION = 1.0f;
+    private const float CAPSULE_HEIGHT = 4.0f;
 
     public bool CanMove = false;
     public Vector3 rbMovement;
 
     [SerializeField] private LayerMask interactableLayers;
+    [SerializeField] private GameObject playerCamera;
 
     private float targetStandSpeed;
     private float moveSpeed = WALK_SPEED;
@@ -29,9 +31,11 @@ public class PlayerController : MonoBehaviour
     private Coroutine currentCoroutine;
     private Coroutine currentStandCoroutine;
     private Rigidbody rb;
+    private CapsuleCollider capsuleCollider;
 
     private void Awake()
     {
+        capsuleCollider = GetComponent<CapsuleCollider>();
         rb = GetComponent<Rigidbody>();
         walkingSound = GetComponent<AudioSource>();
         playerInputActions = new PlayerInputActions();
@@ -45,6 +49,8 @@ public class PlayerController : MonoBehaviour
         bool shouldCrouch = Input.GetKey(KeyCode.LeftControl);
         if (shouldCrouch && !isCrouching)
         {
+            if (currentStandCoroutine != null)
+                StopCoroutine(currentStandCoroutine);
             SwitchCoroutine(Crouch());
         }
         else if (!shouldCrouch && isCrouching)
@@ -102,9 +108,13 @@ public class PlayerController : MonoBehaviour
     private IEnumerator Crouch()
     {
         isCrouching = true;
+        walkingSound.volume = 0.35f;
 
-        Vector3 startScale = transform.localScale;
-        Vector3 targetScale = new Vector3(transform.localScale.x, CROUCH_SCALE_Y, transform.localScale.z);
+        float startHeight = capsuleCollider.height;
+        float targetHeight = CAPSULE_HEIGHT * CROUCH_SCALE_Y;
+        float cameraY = playerCamera.transform.localPosition.y;
+        float targetCameraY = cameraY - (startHeight - targetHeight);
+
         float startSpeed = moveSpeed;
         float targetSpeed = CROUCH_SPEED;
 
@@ -115,22 +125,32 @@ public class PlayerController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / STAND_CROUCH_ANIMATION_DURATION;
             t = Mathf.SmoothStep(0, 1, t);
-            transform.localScale = Vector3.Lerp(startScale, targetScale, t);
+            capsuleCollider.height = Mathf.Lerp(startHeight, targetHeight, t);
+
+            float newPlayerCameraY = Mathf.Lerp(cameraY, targetCameraY, t);
+            playerCamera.transform.localPosition = new Vector3(playerCamera.transform.localPosition.x, newPlayerCameraY, playerCamera.transform.localPosition.z);
+
+            float newCapsuleCenterY = Mathf.Lerp(startHeight / 2.0f, targetHeight / 2.0f, t);
+            capsuleCollider.center = new Vector3(capsuleCollider.center.x, newCapsuleCenterY, capsuleCollider.center.z);
+
             moveSpeed = Mathf.Lerp(startSpeed, targetSpeed, t);
             yield return null;
         }
-        transform.localScale = targetScale;
+        capsuleCollider.height = targetHeight;
+        playerCamera.transform.localPosition = new Vector3(playerCamera.transform.localPosition.x, targetCameraY, playerCamera.transform.localPosition.z);
+        capsuleCollider.center = new Vector3(capsuleCollider.center.x, targetHeight / 2.0f, capsuleCollider.center.z);
         moveSpeed = CROUCH_SPEED;
-
-        isCrouching = false;
     }
 
     private IEnumerator Stand()
     {
         isCrouching = false;
+        walkingSound.volume = 1.0f;
 
-        Vector3 startScale = transform.localScale;
-        Vector3 targetScale = new Vector3(transform.localScale.x, STAND_SCALE_Y, transform.localScale.z);
+        float startHeight = capsuleCollider.height;
+        float targetHeight = CAPSULE_HEIGHT * STAND_SCALE_Y;
+        float cameraY = playerCamera.transform.localPosition.y;
+        float targetCameraY = cameraY + (targetHeight - startHeight);
 
         float elapsedTime = 0.0f;
 
@@ -139,10 +159,19 @@ public class PlayerController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / STAND_CROUCH_ANIMATION_DURATION;
             t = Mathf.SmoothStep(0, 1, t);
-            transform.localScale = Vector3.Lerp(startScale, targetScale, t);
+            capsuleCollider.height = Mathf.Lerp(startHeight, targetHeight, t);
+
+            float newPlayerCameraY = Mathf.Lerp(cameraY, targetCameraY, t);
+            playerCamera.transform.localPosition = new Vector3(playerCamera.transform.localPosition.x, newPlayerCameraY, playerCamera.transform.localPosition.z);
+
+            float newCapsuleCenterY = Mathf.Lerp(startHeight / 2.0f, targetHeight / 2.0f, t);
+            capsuleCollider.center = new Vector3(capsuleCollider.center.x, newCapsuleCenterY, capsuleCollider.center.z);
+
             yield return null;
         }
-        transform.localScale = targetScale;
+        capsuleCollider.height = targetHeight;
+        playerCamera.transform.localPosition = new Vector3(playerCamera.transform.localPosition.x, targetCameraY, playerCamera.transform.localPosition.z);
+        capsuleCollider.center = new Vector3(capsuleCollider.center.x, targetHeight / 2.0f, capsuleCollider.center.z);
     }
 
     private void MovePlayer()
@@ -151,9 +180,37 @@ public class PlayerController : MonoBehaviour
         rbMovement = moveSpeed * Time.deltaTime * (transform.forward * inputVector.y + transform.right * inputVector.x);
 
         Vector3 rayOrigin = transform.position + Vector3.up * 1.0f;
-        Ray ray = new Ray(rayOrigin, rbMovement.normalized);
+        Vector3 movementDirection = rbMovement.normalized;
 
-        if (!Physics.Raycast(ray, 1.0f, interactableLayers))
+        float sphereRadius = 0.75f;
+        int rayCount = 8;
+        bool isCollisionDetected = false;
+
+        for (int i = 0; i < rayCount; i++)
+        {
+            float angle = (360f / rayCount) * i;
+            Vector3 direction = Quaternion.Euler(0, angle, 0) * Vector3.forward;
+
+            if (Physics.Raycast(rayOrigin, direction, out RaycastHit hit, sphereRadius, interactableLayers))
+            {
+                isCollisionDetected = true;
+                Vector3 hitNormal = hit.normal;
+
+                float angleToNormal = Vector3.Angle(movementDirection, hitNormal);
+
+                if (angleToNormal < 90.0f || angleToNormal > 270.0f)
+                {
+                    rb.MovePosition(rb.position + rbMovement);
+                    break;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        if (!isCollisionDetected)
         {
             rb.MovePosition(rb.position + rbMovement);
         }

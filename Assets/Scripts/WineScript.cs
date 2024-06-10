@@ -5,7 +5,7 @@ using UnityEngine;
 public class WineScript : MonoBehaviour
 {
     private const float MAX_DISTANCE_TO_POUR = 0.4f;
-    private const float GLASS_FILL_LIMIT = 0.92f;
+    private const float GLASS_FILL_SCALE_LIMIT = 0.1753918f;
     private const float POUR_ANGLE_LIMIT = 50.0f;
     private const float POUR_RISE_SPEED = 0.1f;
 
@@ -49,7 +49,7 @@ public class WineScript : MonoBehaviour
 
         if (Vector2.Distance(pourVec, glassVec) <= MAX_DISTANCE_TO_POUR)
         {
-            if (wineLevel.transform.localPosition.y >= GLASS_FILL_LIMIT)
+            if (wineLevel.transform.localScale.y >= GLASS_FILL_SCALE_LIMIT)
             {
                 audioSource.Stop();
                 taskManager.wineTaskDone = true;
@@ -60,7 +60,11 @@ public class WineScript : MonoBehaviour
                 {
                     audioSource.Play();
                 }
-                wineLevel.transform.localPosition += new Vector3(0, POUR_RISE_SPEED * Time.deltaTime, 0);
+                if (!wineLevel.activeSelf)
+                {
+                    wineLevel.SetActive(true);
+                }
+                wineLevel.transform.localScale += new Vector3(0, POUR_RISE_SPEED * Time.deltaTime, 0);
             }
         }
         else

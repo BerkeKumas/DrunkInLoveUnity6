@@ -23,14 +23,15 @@ public class PinPanelHandler : MonoBehaviour
     [SerializeField] private CinemachineCamera pinCam;
     [SerializeField] private ObjectInteractions objectInteractions;
     [SerializeField] private GameObject exitDoor;
-    [SerializeField] private GameObject unlockDoor;
+    [SerializeField] private GameObject escapeTrigger;
 
     private bool PinMode = false;
-    private char[] pinCode = new char[] { 'A', 'A', 'A', 'A', 'A', 'A' };
+    private char[] pinCode = new char[] { 'N', 'E', 'D', 'L', 'U', 'V' };
     private char[] enteredPin = new char[PIN_LENGTH];
     private int columnIndex = 0;
     private Tile[] pinTileScripts;
     private Image[] pinTileImages;
+    private bool isPinEntered = false;
 
     private void Awake()
     {
@@ -120,7 +121,11 @@ public class PinPanelHandler : MonoBehaviour
     {
         if (enteredChar == '\0')
         {
-            pinTileImages[index].color = Color.black;
+            Color customColor;
+            if (ColorUtility.TryParseHtmlString("#005CFF", out customColor))
+            {
+                pinTileImages[index].color = customColor;
+            }
         }
         else if (pinCode[index] == enteredChar)
         {
@@ -144,12 +149,13 @@ public class PinPanelHandler : MonoBehaviour
             }
         }
 
-        if (pinCorrect)
+        if (pinCorrect && !isPinEntered)
         {
+            isPinEntered = true;
+            escapeTrigger.SetActive(true);
             ShutterControl.ToggleShutter(9.5f, 0);
             transform.tag = "Untagged";
             exitDoor.tag = "doortag";
-            unlockDoor.GetComponent<DoorController>().isDoorLocked = false;
             DisablePinMode();
         }
     }

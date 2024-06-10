@@ -13,12 +13,20 @@ public class LockpickControl : MonoBehaviour
     [SerializeField] private LockpickPinControl LockpickPinControl;
     [SerializeField] private InventorySlot handSlot;
     [SerializeField] private GameObject womanObject;
-    [SerializeField] private DoorController doorController;
     [SerializeField] private ObjectInteractions objectInteractions;
     [SerializeField] private AudioSource laptopMusic;
+    [SerializeField] private EnemyController enemyController;
+    [SerializeField] private GameObject enemy;
+
+    private bool isEnemyActivated = false;
 
     private void OnEnable()
     {
+        if (!isEnemyActivated)
+        {
+            isEnemyActivated = true;
+            enemyController.EnterBasement();
+        }
         if (handSlot.itemTag != string.Empty)
         {
             objectInteractions.enabled = false;
@@ -62,11 +70,6 @@ public class LockpickControl : MonoBehaviour
         playerController.enabled = true;
         playerLook.enabled = true;
         lockpickCam.Priority = 0;
-        if (doorController.IsDoorOpen())
-        {
-            doorController.ToggleDoor();
-            doorController.isDoorLocked = true;
-        }
         womanObject.SetActive(true);
         this.enabled = false;
     }

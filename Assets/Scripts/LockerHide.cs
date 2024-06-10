@@ -89,6 +89,11 @@ public class LockerHide : MonoBehaviour
         yield return StartCoroutine(RotateDoor(-90));
     }
 
+    public void OpenDoor()
+    {
+        StartCoroutine(RotateDoor(90));
+    }
+
     private IEnumerator RotateDoor(float targetAngle)
     {
         float elapsedTime = 0;

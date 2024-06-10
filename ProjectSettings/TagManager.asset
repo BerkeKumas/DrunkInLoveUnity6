@@ -42,6 +42,17 @@ TagManager:
   - bathroomdoortag
   - missingfingertag
   - venthinttag
+  - tattoohinttag
+  - meattag
+  - hint1tag
+  - hint2tag
+  - hint3tag
+  - hint4tag
+  - hint5tag
+  - hint6tag
+  - lovetag
+  - basementcaptiontag
+  - escapetriggertag
   layers:
   - Default
   - TransparentFX
@@ -59,8 +70,8 @@ TagManager:
   - Note
   - LightBlock2
   - Trigger
-  - 
-  - 
+  - Vent
+  - Board
   - 
   - 
   - 

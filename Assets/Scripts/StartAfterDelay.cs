@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class StartAfterDelay : MonoBehaviour
 {
-    [SerializeField] private Material drunkEffectMaterial;
-
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PinManager pinManager;
     [SerializeField] private AudioSource backgroundAudio;
@@ -14,11 +12,6 @@ public class StartAfterDelay : MonoBehaviour
     [SerializeField] private PauseManager pauseManager;
 
     private bool isTimelineEnded = false;
-
-    private void Awake()
-    {
-        drunkEffectMaterial.SetFloat("_WobbleIntensity", 0.01f);
-    }
 
     private void Update()
     {
@@ -46,7 +39,7 @@ public class StartAfterDelay : MonoBehaviour
 
     private IEnumerator IncreaseBackgroundMusicVolume()
     {
-        while (backgroundAudio.volume < 0.4f)
+        while (backgroundAudio.volume < 0.3f)
         {
             backgroundAudio.volume += 0.02f;
             yield return new WaitForSeconds(0.1f);

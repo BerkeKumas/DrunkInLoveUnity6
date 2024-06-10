@@ -44,7 +44,10 @@ public class DrunkBar : MonoBehaviour
 
                 if (currentFillTime > halfFillPoint)
                 {
-                    UpdateColorOpacity(currentFillTime);
+                    if (fadeImageColor.a <= 0.9f)
+                    {
+                        UpdateColorOpacity(currentFillTime);
+                    }
                     captionTextTyper.StartType(HALF_FILL_TEXT, true);
                 }
                 else
@@ -61,7 +64,7 @@ public class DrunkBar : MonoBehaviour
 
     private void UpdateColorOpacity(float time)
     {
-        fadeImageColor.a = (time - halfFillPoint) / halfFillPoint;
+        fadeImageColor.a = (time - halfFillPoint) * 1.35f / halfFillPoint;
         transitionFadeImage.color = fadeImageColor;
     }
 

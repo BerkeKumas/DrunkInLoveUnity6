@@ -11,12 +11,16 @@ public class BreathControl : MonoBehaviour
     [SerializeField] private RectTransform heartUI;
     [SerializeField] private EnemyController enemyController;
     [SerializeField] private Image heartImage;
+    [SerializeField] private AudioSource heartBeat;
+    [SerializeField] private ObjectInteractions objectInteractions;
 
     private float currentHeartbeatSpeed;
     private Color originalColor;
+    private int countErrors;
 
     private void OnEnable()
     {
+        countErrors = 0;
         originalColor = heartImage.color;
         BreathControlUI.SetActive(true);
         currentHeartbeatSpeed = INITIAL_HEART_BEAT_SPEED;
@@ -28,7 +32,8 @@ public class BreathControl : MonoBehaviour
         while (true)
         {
             yield return ScaleUI(0.3f, 1f, currentHeartbeatSpeed / 2);
-
+            heartBeat.pitch = Mathf.Lerp(1.4f, 0.9f, Mathf.InverseLerp(0.5f, 1.0f, currentHeartbeatSpeed));
+            heartBeat.Play();
             yield return ScaleUI(1f, 0.3f, currentHeartbeatSpeed / 2);
         }
     }
@@ -49,8 +54,8 @@ public class BreathControl : MonoBehaviour
                     currentHeartbeatSpeed *= SPEED_REDUCTION_FACTOR;
                     if (currentHeartbeatSpeed >= 1.0f)
                     {
+                        enemyController.ResetControls();
                         StopAllCoroutines();
-                        enemyController.canSearchPlayer = false;
                         BreathControlUI.SetActive(false);
                         this.enabled = false;
                     }
@@ -58,6 +63,11 @@ public class BreathControl : MonoBehaviour
                 }
                 else
                 {
+                    countErrors++;
+                    if (countErrors >= 8)
+                    {
+                        enemyController.OpenAndKillPlayer();
+                    }
                     currentHeartbeatSpeed = Mathf.Max(currentHeartbeatSpeed / SPEED_REDUCTION_FACTOR, INITIAL_HEART_BEAT_SPEED);
                     StartCoroutine(ShowFeedback(Color.red));
                 }

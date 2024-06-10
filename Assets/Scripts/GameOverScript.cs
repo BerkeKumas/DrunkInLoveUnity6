@@ -12,7 +12,14 @@ public class GameOverScript : MonoBehaviour
 
     public void TryAgain()
     {
-        SceneManager.LoadScene(1);
+        if (PlayerPrefs.GetInt("isDeadByEnemy") == 1)
+        {
+            SceneManager.LoadScene(3);
+        }
+        else
+        {
+            SceneManager.LoadScene(1);
+        }
     }
 
     public void ExitGame()

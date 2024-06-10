@@ -76,6 +76,26 @@ PrefabInstance:
       propertyPath: m_TagString
       value: drawertag
       objectReference: {fileID: 0}
+    - target: {fileID: -6668323710007638472, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 3e101574893ed2a4faa197233c1f57fb, type: 2}
+    - target: {fileID: -6668323710007638472, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 153da56f775a6054893146df52e85704, type: 2}
+    - target: {fileID: -3620251569579289836, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 92c29200a2095b249b5abe91af4d96cc, type: 2}
+    - target: {fileID: -3620251569579289836, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a2fc5ddeeb9236c4abdb96137ef6cc9a, type: 2}
+    - target: {fileID: -2395295318534172773, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: b760a85d95977fa4dba0df02c26fafc3, type: 2}
     - target: {fileID: -89936604350522501, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
       propertyPath: m_Name
       value: Frame
@@ -96,6 +116,14 @@ PrefabInstance:
       propertyPath: m_TagString
       value: drawertag
       objectReference: {fileID: 0}
+    - target: {fileID: 3945455503902288602, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 080d66720887e9d4b9edfae93c6097e2, type: 2}
+    - target: {fileID: 3945455503902288602, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 578b2b5d68d07054798bc0612b42ae58, type: 2}
     - target: {fileID: 4725651812596902284, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
