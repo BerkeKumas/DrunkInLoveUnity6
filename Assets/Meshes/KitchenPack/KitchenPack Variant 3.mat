@@ -7,11 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Drawer Variant 5
+  m_Name: KitchenPack Variant 3
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_Parent: {fileID: -6922793697723135513, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
+  m_Parent: {fileID: -3466359529836016787, guid: 24780c23c40b60e40a169d1dad5f05fa, type: 3}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _NORMALMAP
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -26,17 +27,16 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 9b657f55b00973d488a028a3b8ddb73e, type: 3}
+        m_Texture: {fileID: 2800000, guid: 8c3aeed2a6783814088d13c7a83e3695, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Metallic: 0.6
-    - _Smoothness: 0.6
+    - _Smoothness: 0.15
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &2216226671416915928
+--- !u!114 &6118599958661757121
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

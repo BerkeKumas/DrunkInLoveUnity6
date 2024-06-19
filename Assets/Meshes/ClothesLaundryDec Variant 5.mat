@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Drawer Variant 5
+  m_Name: ClothesLaundryDec Variant 5
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
-  m_Parent: {fileID: -6922793697723135513, guid: 843751cd4f7eb814791638b0a17965f9, type: 3}
+  m_Parent: {fileID: -2315404422835026341, guid: 8b7f9a1dac0c70f4fac13f8da0c6cdb4, type: 3}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
@@ -24,19 +24,15 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 9b657f55b00973d488a028a3b8ddb73e, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Metallic: 0.6
-    - _Smoothness: 0.6
-    m_Colors: []
+    - _Smoothness: 0.35
+    m_Colors:
+    - _Color: {r: 0.7963766, g: 0.15333039, b: 0.12920925, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &2216226671416915928
+--- !u!114 &2818878400876127474
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}

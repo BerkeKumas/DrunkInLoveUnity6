@@ -67,6 +67,9 @@ public class BreathControl : MonoBehaviour
                     if (countErrors >= 8)
                     {
                         enemyController.OpenAndKillPlayer();
+                        StopAllCoroutines();
+                        BreathControlUI.SetActive(false);
+                        this.enabled = false;
                     }
                     currentHeartbeatSpeed = Mathf.Max(currentHeartbeatSpeed / SPEED_REDUCTION_FACTOR, INITIAL_HEART_BEAT_SPEED);
                     StartCoroutine(ShowFeedback(Color.red));

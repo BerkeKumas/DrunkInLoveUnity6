@@ -19,6 +19,7 @@ public class LockerHide : MonoBehaviour
     private bool isPlayerGoingInside = false;
     private BoxCollider boxCollider;
     private AudioSource audioSource;
+    private bool enableControl = false;
 
     private void Awake()
     {
@@ -28,8 +29,9 @@ public class LockerHide : MonoBehaviour
 
     private void Update()
     {
-        if (isPlayerGoingInside && Input.GetKeyDown(KeyCode.F))
+        if (enableControl && isPlayerGoingInside && Input.GetKeyDown(KeyCode.F))
         {
+            enableControl = false;
             ControlPlayerHide();
         }
     }
@@ -138,6 +140,11 @@ public class LockerHide : MonoBehaviour
             boxCollider.enabled = true;
             yield return new WaitForSeconds(0.5f);
             enemyController.canSearchPlayer = true;
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.5f);
+            enableControl = true;
         }
     }
 }

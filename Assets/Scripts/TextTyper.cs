@@ -5,7 +5,7 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 public class TextTyper : MonoBehaviour
 {
-    private const float DELAY = 0.04f;
+    private const float DELAY = 0.05f;
     private const float END_DELAY_FACTOR = 10.0f;
 
     [SerializeField] private AudioSource clearThroatSource;

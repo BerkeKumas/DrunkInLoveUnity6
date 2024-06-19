@@ -10,8 +10,8 @@ public class GameEndScript : MonoBehaviour
     private readonly string newsText =
         "Breaking News\r\n\r\nWe are here with very striking news today. A victim, R.A., came running to the police station last night and reported a terrifying situation. Initially, the police officers did not believe him.\r\n\r\nThe psychopathic killer named Rose has been getting married at regular intervals for years and has been torturing her husbands by taking them to her basement on their first anniversary.\r\n\r\nUnfortunately, six men have fallen victim to these regular serial murders. The images are too horrifying for us to show you.\r\n\r\nR.A., who escaped from being the seventh victim at the last moment and caused this incredible situation to come to light, is currently in the hospital.\r\n\r\nWe will continue to share the details of this terrible case with you. Stay tuned.";
 
-    private const float DELAY = 0.01f;
-    private const float END_DELAY_FACTOR = 10.0f;
+    private const float DELAY = 0.02f;
+    private const float END_DELAY_FACTOR = 100.0f;
 
 
     [SerializeField] private GameObject endText;
@@ -66,12 +66,12 @@ public class GameEndScript : MonoBehaviour
             yield return new WaitForSeconds(DELAY);
         }
 
+        textSound.Stop();
         yield return new WaitForSeconds(DELAY * END_DELAY_FACTOR);
 
         currentText = string.Empty;
         newsTextDisplay.text = currentText;
 
-        textSound.Stop();
         StartCoroutine (ActionControl());
     }
 

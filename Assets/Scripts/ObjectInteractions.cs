@@ -117,9 +117,11 @@ public class ObjectInteractions : MonoBehaviour
     private FilmGrain filmGrain;
     private int lastLaundryCounter = 0;
     private bool sendRay = false;
+    private Rigidbody playerRb;
 
     private void Awake()
     {
+        playerRb = GetComponent<Rigidbody>();
         soundAudioSource = soundPlayer.GetComponent<AudioSource>();
         captionTextTyper = captionTextObject.GetComponent<CaptionTextTyper>();
         cupPos = cupPosObject.transform.position;
@@ -181,7 +183,10 @@ public class ObjectInteractions : MonoBehaviour
             }
         }
 
-        CheckMoveObjectParent();
+        if (moveObject != null)
+        {
+            CheckMoveObjectParent();
+        }
 
         if (Input.GetKeyDown(KeyCode.R) && !isRotating)
         {
@@ -308,6 +313,7 @@ public class ObjectInteractions : MonoBehaviour
         isZoomed = !isZoomed;
         if (isZoomed)
         {
+            playerRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
             stopRay = true;
             interactionText.text = string.Empty;
             playerController.enabled = false;
@@ -320,6 +326,7 @@ public class ObjectInteractions : MonoBehaviour
         }
         else
         {
+            playerRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             playerController.enabled = true;
             playerLook.enabled = true;
             motionCameraEffects.enabled = true;

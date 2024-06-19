@@ -18,7 +18,7 @@ public class EnemyController : MonoBehaviour
         "She's close, I need to find a spot",
         "She heard me, I must hide",
     };
-    private const float RAYCAST_HEIGHT_OFFSET = 2.0f;
+    private const float RAYCAST_HEIGHT_OFFSET = 1.0f;
 
     public bool isHeardSound = false;
     public bool startEnemy = false;
@@ -69,6 +69,9 @@ public class EnemyController : MonoBehaviour
     private float hideDistance;
     private FilmGrain filmGrain;
     private bool wasOnVision = false;
+    private bool enableCatchAnim = true;
+    private int newRandomVoice = 0;
+    private int randomVoice = 0;
 
     private void Awake()
     {
@@ -104,18 +107,31 @@ public class EnemyController : MonoBehaviour
 
         animator.SetFloat("Speed", agent.velocity.magnitude);
         animator.SetBool("IsMoving", agent.velocity.magnitude > 0.1);
+        if (enableCatchAnim)
+        {
+            bool isNear;
+            if (isPlayerHiding || Vector3.Distance(player.transform.position, transform.position) >= 25.0f)
+            {
+                isNear = false;
+            }
+            else
+            {
+                isNear = true;
+            }
+            animator.SetBool("IsPlayerNear", isNear);
+        }
 
         if (!startEnemy) return;
         if (isPaused) return;
 
-        if (checkLockerDistance && Vector3.Distance(player.transform.position, transform.position) <= 3.0f)
+        if (checkLockerDistance && Vector3.Distance(player.transform.position, transform.position) <= 3.0f && agent.velocity == Vector3.zero)
         {
             checkLockerDistance = false;
             canSearchPlayer = false;
             breathControl.enabled = true;
             isSeen = false;
             isHeardSound = false;
-            transform.LookAt(player.transform);
+            StartCoroutine(RotateTowards(transform, player.transform.position));
         }
 
         if (!isPlayerHiding)
@@ -152,8 +168,11 @@ public class EnemyController : MonoBehaviour
             {
                 breathSound.Stop();
                 breathSound.loop = false;
-                slowBreathSound.volume = 0.9f;
-                slowBreathSoundCoroutine = StartCoroutine(PlaySlowBreath());
+                if (slowBreathSound.volume != 0)
+                {
+                    slowBreathSound.volume = 0.9f;
+                    slowBreathSoundCoroutine = StartCoroutine(PlaySlowBreath());
+                }
             }
             isHeardSound = false;
             agent.speed = 5;
@@ -175,10 +194,10 @@ public class EnemyController : MonoBehaviour
 
         if (!isPlayerHiding)
         {
-            agent.speed = 8;
-            agent.SetDestination(player.transform.position);
+            agent.speed = 10;
+            agent.SetDestination(player.transform.position + player.transform.forward);
             returningToWaypoints = false;
-            if (Vector3.Distance(player.transform.position, transform.position) < 4.0f)
+            if (Vector3.Distance(player.transform.position, transform.position) < 5.0f)
             {
                 KillPlayer();
             }
@@ -234,6 +253,22 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    public void OpenAndKillPlayer()
+    {
+        enableCatchAnim = false;
+        StartCoroutine(OpenAndKill());
+    }
+
+    private IEnumerator OpenAndKill()
+    {
+        StartCoroutine(PlayerToEnemy());
+        player.GetComponent<ObjectInteractions>().lockerObject.GetComponent<LockerHide>().OpenDoor();
+        yield return new WaitForSeconds(0.2f);
+        KillPlayer();
+        yield return new WaitForSeconds(0.1f);
+        animator.SetBool("IsPlayerNear", true);
+    }
+
     public void KillPlayer()
     {
         playerLook.enabled = false;
@@ -242,27 +277,13 @@ public class EnemyController : MonoBehaviour
         StartCoroutine(DeathActions());
     }
 
-    public void OpenAndKillPlayer()
-    {
-        StartCoroutine(OpenAndKill());
-    }
-
-    private IEnumerator OpenAndKill()
-    {
-        player.GetComponent<ObjectInteractions>().lockerObject.GetComponent<LockerHide>().OpenDoor();
-        yield return new WaitForSeconds(0.2f);
-        KillPlayer();
-    }
-
     private IEnumerator DeathActions()
     {
         isPaused = true;
-
         player.GetComponent<Rigidbody>().isKinematic = true;
         player.GetComponent<CapsuleCollider>().enabled = false;
         agent.updateRotation = false;
         agent.isStopped = true;
-        StartCoroutine(PlayerToEnemy());
         impulseSource.GenerateImpulse();
         StartCoroutine(RotateTowards(player.transform, transform.position));
         if (basementProfile.TryGet<FilmGrain>(out filmGrain))
@@ -289,7 +310,7 @@ public class EnemyController : MonoBehaviour
         float totalTime = 1.0f;
 
         Vector3 initialPos = player.transform.position;
-        Vector3 targetPos = transform.position;
+        Vector3 targetPos = transform.position + transform.forward * 0.5f;
 
         while (elapsedTime < totalTime)
         {
@@ -322,7 +343,7 @@ public class EnemyController : MonoBehaviour
         float elapsedTime = 0f;
         float totalTime = 0.6f;
         Color initialColor = fadeImage.color;
-        Color targetColor = new Color(0.5f, 0f, 0f, 0.25f);
+        Color targetColor = new Color(0.5f, 0f, 0f, 0.7f);
 
         while (elapsedTime < totalTime)
         {
@@ -458,8 +479,13 @@ public class EnemyController : MonoBehaviour
             float randomWaitTime = Random.Range(10f, 20f);
             yield return new WaitForSeconds(randomWaitTime);
 
-            int randomVoice = Random.Range(4, 9);
-            PlayVoiceClip(randomVoice);
+            do
+            {
+                randomVoice = Random.Range(4, 9);
+            } while (randomVoice == newRandomVoice);
+
+            newRandomVoice = randomVoice;
+            PlayVoiceClip(newRandomVoice);
         }
     }
 

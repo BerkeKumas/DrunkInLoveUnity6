@@ -19,8 +19,11 @@ public class ShutterDoorTrigger : MonoBehaviour
                 enableTrigger = false;
                 shutterControl.ToggleShutter(2.0f, 1);
                 StartCoroutine(TypeCaption());
-                slowBreathSound.volume = 0.9f;
-                StartCoroutine(PlaySlowBreath());
+                if (slowBreathSound.volume != 0)
+                {
+                    slowBreathSound.volume = 0.9f;
+                    StartCoroutine(PlaySlowBreath());
+                }
             }
             else if (triggerTag == "enemytag")
             {

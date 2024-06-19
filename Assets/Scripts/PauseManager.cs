@@ -20,6 +20,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private GameObject[] soundObjects;
     [SerializeField] private EnemyController enemyController;
     [SerializeField] private PlayerController playerController;
+    [SerializeField] private MotionCameraEffects motionCameraEffects;
     [SerializeField] private Volume volume;
 
     private bool isGamePaused = false;
@@ -51,6 +52,7 @@ public class PauseManager : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.None;
             playerRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+            motionCameraEffects.enabled = false;
             playerLook.enabled = false;
             playerController.enabled = false;
             enemyController.isPaused = true;
@@ -73,6 +75,7 @@ public class PauseManager : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.Locked; 
             playerRb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            motionCameraEffects.enabled = true;
             playerLook.enabled = true;
             playerController.enabled = true;
             enemyController.isPaused = false;
